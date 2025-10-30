@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Intelligence AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .file-label:hover {
+            background: #5568d3;
+        }
+
+        .file-name {
+            margin-left: 15px;
+            color: #666;
+            font-style: italic;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border 0.3s;
+            margin-top: 8px;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .documents-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .document-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .document-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .document-item h3 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .document-item p {
+            color: #718096;
+            font-size: 0.9rem;
+            margin: 4px 0;
+        }
+
+        .document-id {
+            font-family: 'Courier New', monospace;
+            background: #edf2f7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #4a5568;
+            word-break: break-all;
+        }
+
+        .result {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status {
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: inline-block;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status.info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .icon {
+            font-size: 1.3rem;
+        }
+
+        .sample-questions {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .sample-questions h4 {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .sample-questions button {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 8px 12px;
+            margin: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .sample-questions button:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Contract Intelligence AI</h1>
+            <p>Upload, analyze, and ask questions about your contracts</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="card">
+            <h2><span class="icon">📤</span> Upload Contract</h2>
+            <div class="section">
+                <label for="fileInput" class="file-label">Choose PDF File</label>
+                <input type="file" id="fileInput" accept=".pdf" multiple>
+                <span class="file-name" id="fileName">No file selected</span>
+            </div>
+            <button class="btn" onclick="uploadDocument()" id="uploadBtn">
+                Upload & Process
+            </button>
+            <div id="uploadResult"></div>
+        </div>
+
+        <!-- Documents List -->
+        <div class="card">
+            <h2><span class="icon">📚</span> Your Documents</h2>
+            <button class="btn btn-secondary" onclick="loadDocuments()">
+                Refresh List
+            </button>
+            <div class="documents-list" id="documentsList"></div>
+        </div>
+
+        <div class="grid">
+            <!-- Extract Data Section -->
+            <div class="card">
+                <h2><span class="icon">🔍</span> Extract Data</h2>
+                <div class="section">
+                    <label>Document ID:</label>
+                    <input type="text" id="extractDocId" placeholder="Enter document ID">
+                </div>
+                <button class="btn" onclick="extractData()">
+                    Extract Contract Data
+                </button>
+                <div id="extractResult"></div>
+            </div>
+
+            <!-- Audit Section -->
+            <div class="card">
+                <h2><span class="icon">⚠️</span> Risk Audit</h2>
+                <div class="section">
+                    <label>Document ID:</label>
+                    <input type="text" id="auditDocId" placeholder="Enter document ID">
+                </div>
+                <button class="btn btn-danger" onclick="auditContract()">
+                    Analyze Risks
+                </button>
+                <div id="auditResult"></div>
+            </div>
+        </div>
+
+        <!-- Q&A Section -->
+        <div class="card">
+            <h2><span class="icon">💬</span> Ask Questions</h2>
+            <div class="section">
+                <label>Document ID:</label>
+                <input type="text" id="qaDocId" placeholder="Enter document ID">
+            </div>
+            <div class="section">
+                <label>Your Question:</label>
+                <textarea id="question" placeholder="What are the payment terms?"></textarea>
+            </div>
+            
+            <div class="sample-questions">
+                <h4>💡 Sample Questions:</h4>
+                <button onclick="setQuestion('What are the payment terms?')">Payment Terms</button>
+                <button onclick="setQuestion('What is the liability cap?')">Liability Cap</button>
+                <button onclick="setQuestion('What is the termination notice period?')">Termination</button>
+                <button onclick="setQuestion('What is the governing law?')">Governing Law</button>
+                <button onclick="setQuestion('What are the auto-renewal terms?')">Auto-Renewal</button>
+            </div>
+
+            <button class="btn" onclick="askQuestion()">
+                Ask Question
+            </button>
+            <div id="qaResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // Change to '/api' when using Docker with nginx, or 'http://127.0.0.1:8000' for local development
+        const API_BASE = window.location.hostname === 'localhost' && window.location.port === '' 
+            ? '/api'  // Docker with nginx
+            : 'http://127.0.0.1:8000';  // Local development
+
+        // File input handler
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const files = e.target.files;
+            const fileNames = Array.from(files).map(f => f.name).join(', ');
+            document.getElementById('fileName').textContent = fileNames || 'No file selected';
+        });
+
+        // Upload document
+        async function uploadDocument() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            
+            if (!files.length) {
+                showResult('uploadResult', 'Please select at least one PDF file', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('files', file);
+            }
+
+            const btn = document.getElementById('uploadBtn');
+            btn.disabled = true;
+            btn.innerHTML = 'Processing...<span class="loading"></span>';
+
+            try {
+                const response = await fetch(`${API_BASE}/ingest`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    let html = '<div class="status success">✓ Upload Successful!</div>';
+                    html += '<div class="result"><pre>';
+                    html += `Message: ${data.message}\n\n`;
+                    html += 'Document IDs:\n';
+                    data.document_ids.forEach(id => {
+                        html += `📄 ${id}\n`;
+                    });
+                    html += '</pre></div>';
+                    showResult('uploadResult', html);
+                    loadDocuments();
+                } else {
+                    showResult('uploadResult', `Error: ${data.detail}`, 'error');
+                }
+            } catch (error) {
+                showResult('uploadResult', `Error: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Upload & Process';
+            }
+        }
+
+        // Load documents
+        async function loadDocuments() {
+            try {
+                const response = await fetch(`${API_BASE}/documents`);
+                const data = await response.json();
+
+                const container = document.getElementById('documentsList');
+                
+                if (Object.keys(data).length === 0) {
+                    container.innerHTML = '<p style="color: #718096; padding: 20px; text-align: center;">No documents uploaded yet</p>';
+                    return;
+                }
+
+                let html = '';
+                for (const [id, doc] of Object.entries(data)) {
+                    html += `
+                        <div class="document-item">
+                            <h3>📄 ${doc.filename}</h3>
+                            <p><strong>Status:</strong> ${doc.status}</p>
+                            <p><strong>Chunks:</strong> ${doc.chunks}</p>
+                            <p><strong>Pages:</strong> ${doc.pages || 'N/A'}</p>
+                            <p><strong>ID:</strong></p>
+                            <div class="document-id">${id}</div>
+                            <button class="btn" style="margin-top: 10px; padding: 8px 16px; font-size: 0.9rem;" onclick="copyToClipboard('${id}')">
+                                Copy ID
+                            </button>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            } catch (error) {
+                showResult('documentsList', `Error loading documents: ${error.message}`, 'error');
+            }
+        }
+
+        // Extract data
+        async function extractData() {
+            const docId = document.getElementById('extractDocId').value.trim();
+            
+            if (!docId) {
+                showResult('extractResult', 'Please enter a document ID', 'error');
+                return;
+            }
+
+            showResult('extractResult', '<div class="status info">⏳ Extracting data...</div>');
+
+            try {
+                const response = await fetch(`${API_BASE}/extract?document_id=${docId}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    let html = '<div class="status success">✓ Extraction Complete!</div>';
+                    html += '<div class="result"><pre>';
+                    html += JSON.stringify(data.data, null, 2);
+                    html += '</pre></div>';
+                    showResult('extractResult', html);
+                } else {
+                    showResult('extractResult', `Error: ${data.detail}`, 'error');
+                }
+            } catch (error) {
+                showResult('extractResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Audit contract
+        async function auditContract() {
+            const docId = document.getElementById('auditDocId').value.trim();
+            
+            if (!docId) {
+                showResult('auditResult', 'Please enter a document ID', 'error');
+                return;
+            }
+
+            showResult('auditResult', '<div class="status info">⏳ Analyzing risks...</div>');
+
+            try {
+                const response = await fetch(`${API_BASE}/audit?document_id=${docId}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    let html = '<div class="status success">✓ Audit Complete!</div>';
+                    html += '<div class="result"><pre>';
+                    html += JSON.stringify(data.audit, null, 2);
+                    html += '</pre></div>';
+                    showResult('auditResult', html);
+                } else {
+                    showResult('auditResult', `Error: ${data.detail}`, 'error');
+                }
+            } catch (error) {
+                showResult('auditResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Ask question
+        async function askQuestion() {
+            const docId = document.getElementById('qaDocId').value.trim();
+            const question = document.getElementById('question').value.trim();
+            
+            if (!docId || !question) {
+                showResult('qaResult', 'Please enter both document ID and question', 'error');
+                return;
+            }
+
+            showResult('qaResult', '<div class="status info">⏳ Finding answer...</div>');
+
+            try {
+                const response = await fetch(`${API_BASE}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        document_id: docId,
+                        question: question
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    let html = '<div class="status success">✓ Answer Found!</div>';
+                    html += '<div class="result">';
+                    html += `<h3 style="color: #667eea; margin-bottom: 10px;">Answer:</h3>`;
+                    html += `<p style="line-height: 1.6; margin-bottom: 15px;">${data.answer}</p>`;
+                    
+                    if (data.sources && data.sources.length > 0) {
+                        html += `<h4 style="color: #4a5568; margin-top: 20px; margin-bottom: 10px;">Sources:</h4>`;
+                        data.sources.forEach((source, i) => {
+                            html += `<div style="background: #edf2f7; padding: 10px; margin: 8px 0; border-radius: 6px;">`;
+                            html += `<strong>Source ${i + 1}:</strong><br>`;
+                            html += `${source.content}`;
+                            html += `</div>`;
+                        });
+                    }
+                    html += '</div>';
+                    showResult('qaResult', html);
+                } else {
+                    showResult('qaResult', `Error: ${data.detail}`, 'error');
+                }
+            } catch (error) {
+                showResult('qaResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Helper functions
+        function showResult(elementId, content, type = 'success') {
+            const element = document.getElementById(elementId);
+            if (type === 'error') {
+                element.innerHTML = `<div class="status error">✗ ${content}</div>`;
+            } else if (type === 'info') {
+                element.innerHTML = `<div class="status info">${content}</div>`;
+            } else {
+                element.innerHTML = content;
+            }
+        }
+
+        function setQuestion(q) {
+            document.getElementById('question').value = q;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Document ID copied to clipboard!');
+            });
+        }
+
+        // Load documents on page load
+        window.addEventListener('load', loadDocuments);
+    </script>
+</body>
+</html>
