@@ -14,13 +14,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# 
-app = FastAPI(
-    title="Contract Intelligence API",
-    description="AI-powered contract analysis and Q&A",
-    version="1.0.0"
-)
-
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
